@@ -79,11 +79,11 @@ const example = \`\`,
     expectP1 = 0,
     expectP2 = 0
 
-function part1() {
+function part1(input) {
     return 0
 }
 
-function part2() {
+function part2(input) {
     return 0
 }
 

@@ -8,6 +8,17 @@
 import fs from 'node:fs';
 import * as https from "node:https";
 
+
+export function splitStrToInts(str) {
+    const ints = str.trim().split(/\s+/).map(nr => {
+        const i = parseInt(nr)
+        console.assert(!isNaN(i), `map lines should be numbers, got ${nr}`)
+        return i
+    })
+    console.assert(ints.length > 0, "should have some ints")
+    return ints
+}
+
 export function run(day, example, expectP1, expectP2, part1, part2) {
     console.time("example")
     let result = part1(example)

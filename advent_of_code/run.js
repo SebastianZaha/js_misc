@@ -3,7 +3,7 @@ import nodeUtil from "node:util";
 import {exec} from "node:child_process";
 const execP = nodeUtil.promisify(exec);
 
-import {requestFile} from "./util"
+import {requestFile} from "./util.js"
 
 // advent_of_code/cookie.txt should contain the "session=..." cookie copied and pasted from browser after login
 export async function newDay(year, day) {

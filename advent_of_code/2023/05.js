@@ -56,7 +56,7 @@ function parseInput(input) {
         }
         const mapEntry = splitStrToInts(line)
         console.assert(mapEntry.length === 3, `map entries should contain 3 numbers, got ${mapEntry}`)
-        currentMap.push(mapEntry)
+        currentMap.push({dstStart: mapEntry[0], srcStart: mapEntry[1], length: mapEntry[2]})
     })
     console.assert(currentMap.length > 0, `maps should not be empty (happened on last map)`)
     maps.push(currentMap)
@@ -67,8 +67,8 @@ function parseInput(input) {
 function findLocationForSeed(maps, seed) {
     return maps.reduce((val, map) => {
         for (let i = 0; i < map.length; i++) {
-            if ((val >= map[i][1]) && (val < map[i][1] + map[i][2])) {
-                return map[i][0] + val - map[i][1]
+            if ((val >= map[i].srcStart) && (val < map[i].srcStart + map[i].length)) {
+                return map[i].dstStart + val - map[i].srcStart
             }
         }
         return val
@@ -86,20 +86,65 @@ function part1(input) {
     return min;
 }
 
+// make sure map covers the entire range of ints
+function normalizeMap(map) {
+    map.sort((a, b) => a.srcStart - b.srcStart)
 
-function part2(input) {
-    let [seeds, maps] = parseInput(input)
-    let min = findLocationForSeed(maps, seeds[0])
+    if (map[0].srcStart > 0) map.splice(0, 0, {srcStart: 0, dstStart: 0, length: map[0].srcStart})
+    for (let i = 1; i < map.length; i++) {
+        const prevEnd = map[i-1].srcStart + map[i-1].length
+        if (map[i].srcStart > prevEnd)
+            map.splice(i, 0, {srcStart: prevEnd, dstStart: prevEnd, length: map[i].srcStart - prevEnd})
+    }
+}
 
-    for (let i = 0; i < seeds.length; i += 2) {
-        console.log(`seed ${i}`)
-        for (let j = 0; j < seeds[i+1]; j++) {
-            const l = findLocationForSeed(maps, seeds[i] + j)
-            if (l < min) min = l;
+function inRange(val, range) {
+    return ((val >= range.srcStart) && (val < range.srcStart + range.length))
+}
+
+function composeMapFunc(start, end, map) {
+    const ranges = []
+
+    for (let i = 0; i < map.length; i++) {
+        if (inRange(start, map[i])) {
+            const startOffset = start - map[i].srcStart
+            if (inRange(end, map[i])) {
+                ranges.push({srcStart: start, length: end - start, dstStart: map[i].dstStart + startOffset})
+                return ranges
+            }
+            const newRangeLength = map[i].length - startOffset
+            ranges.push({srcStart: start, length: newRangeLength, dstStart: map[i].dstStart + startOffset})
+            start = start + newRangeLength
         }
     }
 
-    return min
+    // end was outside of last range
+    ranges.push({srcStart: start, dstStart: start, length: end - start})
+
+    return ranges
+}
+
+function part2(input) {
+    let [seeds, maps] = parseInput(input)
+    maps.forEach(m => normalizeMap(m))
+
+    let inputRanges = []
+    for (let i = 0; i < seeds.length; i+=2) {
+        inputRanges.push({start: seeds[i], end: seeds[i] + seeds[i+1]})
+    }
+
+    for (let i = 0; i < maps.length; i++) {
+        let nextInputRanges = []
+        for (let j = 0; j < inputRanges.length; j++) {
+            composeMapFunc(inputRanges[j].start, inputRanges[j].end, maps[i]).forEach(range => {
+                nextInputRanges.push({start: range.dstStart, end: range.dstStart + range.length})
+            })
+        }
+
+        inputRanges = nextInputRanges
+    }
+
+    return inputRanges.reduce((min, current) => min < current.start ? min : current.start)
 }
 
 import {run, splitStrToInts} from '../util.js'

@@ -103,4 +103,4 @@ function part2(input) {
 }
 
 import {run, splitStrToInts} from '../util.js'
-run("05", example, expectP1, expectP2, part1, part2)
+run("05", example, expectP1, expectP2, part1, 662197086, part2, 52510809)

@@ -189,4 +189,4 @@ let m, state, currentNumber,
     logLevel = '' // 'debug'
 
 import {run} from '../util.js'
-run('03', example, 4361, 467835, part1, part2)
+run('03', example, 4361, 467835, part1, 549025, part2, 84495585)

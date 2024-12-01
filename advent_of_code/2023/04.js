@@ -45,4 +45,4 @@ function part2(input) {
 }
 
 import {run} from '../util.js'
-run("04", example, expectP1, expectP2, part1, part2)
+run("04", example, expectP1, expectP2, part1, 23750, part2, 13261850)

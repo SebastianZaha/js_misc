@@ -25,7 +25,7 @@ export function run(day, example, expectP1, expectP2, part1, resultP1, part2, re
     console.time("part1")
     result = part1(input)
     console.log("part1 result = ", result)
-    if (result !== resultP1) throw `expected result for example 1 is incorrect: ${result}`
+    if (result !== resultP1) throw `expected result for part 1 is incorrect: ${result}`
     console.timeEnd("part1")
 
     console.time("example 2")
@@ -36,7 +36,7 @@ export function run(day, example, expectP1, expectP2, part1, resultP1, part2, re
     console.time("part2")
     result = part2(input)
     console.log("part2 result = ", result)
-    if (result !== resultP2) throw `expected result for example 1 is incorrect: ${result}`
+    if (result !== resultP2) throw `expected result for part 2 is incorrect: ${result}`
     console.timeEnd("part2")
 }
 

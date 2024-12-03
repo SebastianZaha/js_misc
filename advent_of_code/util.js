@@ -11,7 +11,7 @@ export function splitStrToInts(str) {
     return ints
 }
 
-export function run(day, example, expectP1, expectP2, part1, resultP1, part2, resultP2) {
+export function run(day, example, expectP1, expectP2, part1, resultP1, part2, resultP2, example2) {
     console.time("example")
     let result = part1(example)
     if (result !== expectP1) throw `expected result for example 1 is incorrect: ${result}`
@@ -29,7 +29,7 @@ export function run(day, example, expectP1, expectP2, part1, resultP1, part2, re
     console.timeEnd("part1")
 
     console.time("example 2")
-    result = part2(example)
+    result = part2(example2 || example)
     if (result !== expectP2) throw `expected result for example 2 is incorrect: ${result}`
     console.timeEnd("example 2")
 

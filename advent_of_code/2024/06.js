@@ -12,7 +12,7 @@ const example = `
     expectP1 = 41,
     expectP2 = 6,
     resultP1 = 5208,
-    resultP2 = null,
+    resultP2 = 1972,
 
     UP    = {i: -1, j:  0, symbol: '^'},
     DOWN  = {i:  1, j:  0, symbol: 'V'},
@@ -34,36 +34,32 @@ function findStart(m) {
     throw `Cannot find matrix start`
 }
 
-function part1(input) {
+function turn(direction, i, j) {
+    // coordinate changes compensate for already 'having moved onto' the obstacle square
+    switch (direction) {
+        case LEFT:  return [UP, i, j+1]
+        case RIGHT: return [DOWN, i, j-1]
+        case UP:    return [RIGHT, i+1, j]
+        case DOWN:  return [LEFT, i-1, j]
+        default: throw `unknown direction ${direction}`
+    }
+}
+
+function walkMatrix(input, checkFunction) {
     const m = input.trim().split('\n').map(line => line.trim().split(''))
     let [direction, i, j] = findStart(m)
-
-    let count = 1
+    m[i][j] = 'X'
+    let count = 0
     while (i < m.length && j < m[0].length && i > -1 && j > -1) {
         switch (m[i][j]) {
             case '#':
-                if (direction === LEFT) {
-                    j++ // compensate for already 'having moved onto' the obstacle square
-                    direction = UP
-                } else if (direction === RIGHT) {
-                    j--
-                    direction = DOWN
-                } else if (direction === UP) {
-                    i++
-                    direction = RIGHT
-                } else {
-                    i--
-                    direction = LEFT
-                }
+                [direction, i, j] = turn(direction, i, j)
                 break
             case '.':
-                m[i][j] = direction.symbol
-                count += 1
+                m[i][j] = 'X'
+                if (checkFunction(m, direction, i, j)) count += 1
                 break
-            case LEFT.symbol: break
-            case RIGHT.symbol: break
-            case UP.symbol: break
-            case DOWN.symbol: break
+            case 'X': break // already been here once and counted this square, ignore
             default:
                 throw `unknown tile ${m[i][j]} at ${i}, ${j} in ${m}`
         }
@@ -73,7 +69,79 @@ function part1(input) {
     return count
 }
 
+function part1(input) {
+    // extra 1 for the start position
+    return 1 + walkMatrix(input, () => true)
+}
+
+function checkLoop(m, direction, i, j) {
+    m = m.map(line => line.slice()) // clone
+    m[i][j] = '#'
+
+    while (i < m.length && j < m[0].length && i > -1 && j > -1) {
+        switch (m[i][j]) {
+            case '#':
+                [direction, i, j] = turn(direction, i, j)
+                break
+            case '.':
+            case 'X':
+                m[i][j] = direction.symbol
+                break
+            case LEFT.symbol:
+                if (direction === LEFT) return true
+                break
+            case RIGHT.symbol:
+                if (direction === RIGHT) return true
+                break
+            case UP.symbol:
+                if (direction === UP) return true
+                break
+            case DOWN.symbol:
+                if (direction === DOWN) return true
+                break
+            default:
+                throw `unknown tile ${m[i][j]} at ${i}, ${j} in ${m}`
+        }
+        i += direction.i
+        j += direction.j
+    }
+    return false
+}
+
+/* extra credit - replace checkLoop call in part2 with this,
+   ignore every check and just decide after doing 10k steps that we're in a loop. Still done in 300ms :D
+
+function checkLoopBruteForce(m, direction, i, j) {
+
+    m = m.map(line => line.slice()) // clone
+    m[i][j] = '#'
+
+    let loops = 0
+    while (i < m.length && j < m[0].length && i > -1 && j > -1) {
+        switch (m[i][j]) {
+            case '#':
+                [direction, i, j] = turn(direction, i, j)
+                break
+            case '.':
+                m[i][j] = 'X'
+                // fallthrough
+            case 'X':
+                break
+            default:
+                throw `unknown tile ${m[i][j]} at ${i}, ${j} in ${m}`
+        }
+        i += direction.i
+        j += direction.j
+
+        loops++
+        if (loops > 10000) return true
+    }
+    return false
+}
+*/
+
 function part2(input) {
+    return walkMatrix(input, checkLoop)
 }
 
 import {run} from '../util.js'

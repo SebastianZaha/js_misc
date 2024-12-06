@@ -87,20 +87,8 @@ function checkLoop(m, direction, i, j) {
             case 'X':
                 m[i][j] = direction.symbol
                 break
-            case LEFT.symbol:
-                if (direction === LEFT) return true
-                break
-            case RIGHT.symbol:
-                if (direction === RIGHT) return true
-                break
-            case UP.symbol:
-                if (direction === UP) return true
-                break
-            case DOWN.symbol:
-                if (direction === DOWN) return true
-                break
             default:
-                throw `unknown tile ${m[i][j]} at ${i}, ${j} in ${m}`
+                if (m[i][j] === direction.symbol) return true
         }
         i += direction.i
         j += direction.j

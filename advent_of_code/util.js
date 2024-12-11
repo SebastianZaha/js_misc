@@ -1,6 +1,8 @@
 import fs from 'node:fs';
 import * as https from "node:https";
 
+export const intLen = n => Math.ceil(Math.log10(n + 1));
+
 export function splitStrToInts(str) {
     const ints = str.trim().split(/\s+/).map(nr => {
         const i = parseInt(nr)

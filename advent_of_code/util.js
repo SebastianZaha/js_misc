@@ -3,6 +3,8 @@ import * as https from "node:https";
 
 export const intLen = n => Math.ceil(Math.log10(n + 1));
 
+export const inBounds = (m, p) => (p[0] >= 0) && (p[1] >= 0) && (p[0] < m.length) && (p[1] < m[p[0]].length)
+
 export function splitStrToInts(str) {
     const ints = str.trim().split(/\s+/).map(nr => {
         const i = parseInt(nr)

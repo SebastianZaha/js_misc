@@ -3,8 +3,6 @@ import * as https from "node:https";
 
 export const intLen = n => Math.ceil(Math.log10(n + 1));
 
-export const inBounds = (m, p) => (p[0] >= 0) && (p[1] >= 0) && (p[0] < m.length) && (p[1] < m[p[0]].length)
-
 export function splitStrToInts(str) {
     const ints = str.trim().split(/\s+/).map(nr => {
         const i = parseInt(nr)
@@ -15,9 +13,9 @@ export function splitStrToInts(str) {
     return ints
 }
 
-export function run(day, example, expectP1, expectP2, part1, resultP1, part2, resultP2, example2) {
+export async function run(day, example, expectP1, expectP2, part1, resultP1, part2, resultP2, example2) {
     console.time("example")
-    let result = part1(example)
+    let result = await part1(example)
     if (result !== expectP1) throw `expected result for example 1 is incorrect: ${result}`
     console.timeEnd("example")
 
@@ -27,18 +25,18 @@ export function run(day, example, expectP1, expectP2, part1, resultP1, part2, re
     console.timeEnd("readInput")
 
     console.time("part1")
-    result = part1(input)
+    result = await part1(input)
     console.log("part1 result = ", result)
     if (result !== resultP1) throw `expected result for part 1 is incorrect: ${result}`
     console.timeEnd("part1")
 
     console.time("example 2")
-    result = part2(example2 || example)
+    result = await part2(example2 || example)
     if (result !== expectP2) throw `expected result for example 2 is incorrect: ${result}`
     console.timeEnd("example 2")
 
     console.time("part2")
-    result = part2(input)
+    result = await part2(input)
     console.log("part2 result = ", result)
     if (result !== resultP2) throw `expected result for part 2 is incorrect: ${result}`
     console.timeEnd("part2")

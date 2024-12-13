@@ -38,5 +38,3 @@ MIIISIJEEE
 MMMISSJEEE`, false))
 
 await run("12", example, expectP1, expectP2, async (i) => await solve(i, true), resultP1, async (i) => await solve(i, false), resultP2)
-// 899949
-

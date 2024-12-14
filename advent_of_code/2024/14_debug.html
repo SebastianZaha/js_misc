@@ -1,0 +1,13 @@
+<html>
+<body>
+<canvas width="101" height="103"></canvas>
+<script type="module">
+    import {solve} from './14_common.js'
+    window.c = document.querySelector('canvas').getContext('2d')
+    const req = await fetch(`./14.txt`)
+    const input = await req.text()
+    c.fillStyle='red'
+    solve(input, false, true)
+</script>
+</body>
+</html>

@@ -13,6 +13,38 @@ export function splitStrToInts(str) {
     return ints
 }
 
+export function waitForKeypress() {
+    return new Promise((resolve) => {
+        process.stdin.setRawMode(true);
+        process.stdin.resume();
+        process.stdin.once('data', (data) => {
+            process.stdin.setRawMode(false);
+            if (data[0] === 3) process.exit() // Ctrl-C
+            resolve(data);
+        });
+    });
+}
+
+export const isKeyLeft  = (data) => data[0] === 27 && data[1] === 91 && data[2] === 68
+export const isKeyRight = (data) => data[0] === 27 && data[1] === 91 && data[2] === 67
+
+export function matFind(m, obj) {
+    for (let i = 0; i < m.length; i++) {
+        for (let j = 0; j < m[i].length; j++) {
+            if (m[i][j] === obj) return [i, j]
+        }
+    }
+    return null
+}
+
+export function matWalk(m, cb) {
+    for (let i = 0; i < m.length; i++) {
+        for (let j = 0; j < m[i].length; j++) {
+            cb(m[i][j], i, j)
+        }
+    }
+}
+
 export async function run(day, example, expectP1, expectP2, part1, resultP1, part2, resultP2, example2) {
     console.time("example")
     let result = await part1(example)

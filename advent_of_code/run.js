@@ -40,7 +40,7 @@ function part2(input) {
 }
 
 import {run} from '../util.js'
-run("${day}", example, expectP1, expectP2, part1, resultP1, part2, resultP2)
+await run("${day}", example, expectP1, expectP2, part1, resultP1, part2, resultP2)
     `.trim())
 
 }

@@ -22,6 +22,16 @@ export function walk(m, cb) {
     }
 }
 
+export function count(m, cb) {
+    let c = 0
+    for (let i = 0; i < m.length; i++) {
+        for (let j = 0; j < m[i].length; j++) {
+            c += cb(m[i][j], i, j) ? 1 : 0
+        }
+    }
+    return c
+}
+
 export const up = [-1, 0], down = [1, 0], left = [0, -1], right = [0, 1]
 
 export function clockwise(direction) {

@@ -1,5 +1,6 @@
-import {antiClockwise, clockwise, down, find, left, parse, right, up} from "../matrix.js";
+import {antiClockwise, clockwise, count, down, find, left, parse, right, up, walk} from "../matrix.js";
 import {MatrixRenderer} from "../canvas.js";
+import {Pause} from "../common_util.js";
 
 export const example = `
 ###############
@@ -18,21 +19,24 @@ export const example = `
 #S..#.....#...#
 ###############`,
     expectP1 = 7036,
-    expectP2 = 0,
+    expectP2 = 45,
     resultP1 = 103512,
-    resultP2 = null
+    resultP2 = 554
 
-export async function part1(input, renderTo) {
+export async function part1(input, renderTo, isPart2) {
     const m = parse(input)
     let pos = find(m, 'S'),
         dir = right,
         seen       = m.map(line => Array(line.length).fill(false)),
         globalSeen = m.map(line => Array(line.length).fill(NaN)),
+        bestPaths  = seen.map(line => Array(line.length).fill(false)),
         steps = 0,
         minSum = NaN,
         currentSum = 0,
         renders = 0,
-        finished = false
+        finished = false,
+        paused = true,
+        pause = new Pause();
 
     m[pos[0]][pos[1]] = '.' // don't need special char for start anymore
 
@@ -48,16 +52,26 @@ export async function part1(input, renderTo) {
         switch(m[i][j]) {
             case '#': return false
             case 'E':
-                minSum = isNaN(minSum) ? sum : (sum < minSum ? sum : minSum)
+                seen[i][j] = true
+                if (isNaN(minSum) || (sum < minSum)) {
+                    bestPaths = seen.map(l => l.slice())
+                    minSum = sum
+                } else if (sum === minSum) {
+                    walk(seen, (val, si, sj) => bestPaths[si][sj] ||= val)
+                }
+                seen[i][j] = false
+
                 return false
             case '.':
                 const minSumHereBefore = globalSeen[i][j]
-                if (isNaN(minSumHereBefore) || (sum < minSumHereBefore)) globalSeen[i][j] = sum
+                // sum - 1000 to account for turns made immediately in this square
+                if (isNaN(minSumHereBefore) || (sum <= minSumHereBefore)) globalSeen[i][j] = sum + 1000
                 else return false
 
                 if (renderTo) {
                     steps++
-                    if (steps % 100 === 0) await new Promise(r => setTimeout(r, 0));
+                    // if (steps % 1 === 0) await new Promise(r => setTimeout(r, 10));
+                    if (paused) await pause.wait()
                 }
 
                 seen[i][j] = true
@@ -69,6 +83,7 @@ export async function part1(input, renderTo) {
                 await rec(i + acl[0], j + acl[1], sum + 1001, acl)
 
                 seen[i][j] = false
+
                 break
             default: throw `unknown matrix square ${m[i][j]}`
         }
@@ -98,7 +113,11 @@ export async function part1(input, renderTo) {
                     } else if (m[i][j] === '#') {
                         renderer.drawBg(i, j, 'lightgray')
                     } else if (m[i][j] === '.') {
-                        if (seen[i][j]) renderer.drawBg(i, j, 'yellow')
+                        if (seen[i][j]) {
+                            renderer.drawBg(i, j, 'yellow')
+                        } else if (bestPaths[i][j]) {
+                            renderer.drawBg(i, j, 'greenyellow')
+                        }
                     } else if (m[i][j] === 'E') {
                         renderer.drawBg(i, j, 'mediumaquamarine')
                     } else {
@@ -110,19 +129,24 @@ export async function part1(input, renderTo) {
             if (!finished) requestAnimationFrame(render)
         }
 
-        let paused = true
         rec(pos[0], pos[1], 0, dir).then(() => { finished = true } )
 
         return {
-            pause: () => { paused = !paused },
+            pause: () => {
+                paused = !paused
+                pause.resume()
+            },
+            step: () => {
+                pause.resume()
+            },
             render: render,
         }
     }
 
     await rec(pos[0], pos[1], 0, dir)
-    return minSum
+    return isPart2 ? count(bestPaths, v => v) : minSum
 }
 
 export function part2(input) {
-    return 0
+    return part1(input, false, true)
 }

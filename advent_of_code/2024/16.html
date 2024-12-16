@@ -15,8 +15,11 @@
     import {part1, example} from './16_common.js'
     const req = await fetch(`./16.txt`)
     const input = await req.text()
-    const runnable = await part1(input, document.body.firstElementChild)
-    document.addEventListener('keypress', (ev) => runnable.pause())
+    const runnable = await part1(example, document.body.firstElementChild)
+    document.addEventListener('keypress', (ev) => {
+        // runnable.pause()
+        runnable.step()
+    })
     runnable.render()
 </script>
 </body>

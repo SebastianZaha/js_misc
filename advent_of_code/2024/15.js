@@ -1,3 +1,5 @@
+import {find, walk} from "../matrix.js";
+
 const example = `
 ##########
 #..O..O.O#
@@ -47,7 +49,7 @@ const pushSimple = (m, dir, i, j, what) => {
 }
 
 function solve(m, moves) {
-    let [i, j] = matFind(m, '@')
+    let [i, j] = find(m, '@')
     if (i === m.length) throw "can't find the start"
 
     for (let mi = 0; mi < moves.length; mi++) {
@@ -64,7 +66,7 @@ function part1(input) {
     let sum = 0,
         lines = input.trim().split('\n'),
         m = [lines[0].split('')],
-        moves = '',
+        moves,
         i
 
     for (i = 1; lines[i] !== lines[0] ; i++) {
@@ -74,7 +76,7 @@ function part1(input) {
     moves = lines.slice(i+2).map(l => l.trim()).join('')
 
     solve(m, moves)
-    matWalk(m, (c, i, j) => sum += (c === 'O') ? i * 100 + j : 0)
+    walk(m, (c, i, j) => sum += (c === 'O') ? i * 100 + j : 0)
     return sum
 }
 
@@ -103,7 +105,7 @@ const duplicate = (row) => {
 }
 
 async function solvePart2(m, moves) {
-    let [i, j] = matFind(m, '@')
+    let [i, j] = find(m, '@')
     if (i === m.length) throw "can't find the start"
 
     let s = new Set()
@@ -158,7 +160,7 @@ async function part2(input) {
     let sum = 0,
         lines = input.trim().split('\n'),
         m = [],
-        moves = '',
+        moves,
         i
 
     for (i = 0; i === 0 || (lines[i] !== lines[0]); i++) {
@@ -169,9 +171,9 @@ async function part2(input) {
 
     await solvePart2(m, moves)
 
-    matWalk(m, (c, i, j) => sum += (c === '[') ? i * 100 + j : 0)
+    walk(m, (c, i, j) => sum += (c === '[') ? i * 100 + j : 0)
     return sum
 }
 
-import {matFind, matWalk, run} from '../util.js'
+import {run} from '../util.js'
 await run("15", example, expectP1, expectP2, part1, resultP1, part2, resultP2)

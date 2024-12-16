@@ -8,12 +8,10 @@ EEEC`,
     resultP1 = 1485656,
     resultP2 = 899196
 
+import {antiClockwise, clockwise, down, inBounds, left, right, up} from '../matrix.js'
+
 const BROWSER = typeof window !== "undefined" && typeof window.document !== "undefined";
 let CELL = 10
-
-const up = [-1, 0], down = [1, 0], left = [0, -1], right = [0, 1]
-
-const inBounds = (m, i, j) => (i >= 0) && (j >= 0) && (i < m.length) && (j < m[i].length)
 
 let edges, seen, m
 
@@ -76,28 +74,8 @@ function markEdgeSeen(i, j, direction) {
     edges[i * 2 + 1 + direction[0]][j * 2 + 1 + direction[1]] = true
 }
 
-function rightward(edgeDirection) {
-    switch (edgeDirection) {
-        case up: return right
-        case down: return left
-        case right: return down
-        case left: return up
-        default: console.trace(`unknown direction ${edgeDirection}`)
-    }
-}
-
-function leftward(edgeDirection) {
-    switch (edgeDirection) {
-        case up: return left
-        case down: return right
-        case right: return up
-        case left: return down
-        default: console.trace(`unknown direction ${edgeDirection}`)
-    }
-}
-
 function walkAlongEdge(i, j, moveDirection, lastEdgeDirection) {
-    let tryDirection = leftward(moveDirection),
+    let tryDirection = antiClockwise(moveDirection),
         seenSides = 0
 
     drawBg(e(i), e(j), 'blue')
@@ -114,7 +92,7 @@ function walkAlongEdge(i, j, moveDirection, lastEdgeDirection) {
             drawTxt(e(i) + tryDirection[0], e(j) + tryDirection[1], 1)
             lastEdgeDirection = tryDirection
         }
-        tryDirection = rightward(tryDirection)
+        tryDirection = clockwise(tryDirection)
     }
 
     console.assert(m[i][j] === m[i + tryDirection[0]][j + tryDirection[1]], 'should be no edge and we can go')
@@ -133,7 +111,7 @@ function part2Walk(i, j) {
         if (isEdgeBetween(i, j, i1, j1)) {
             if (!seenEdge(i, j, dir)) {
                 // if (BROWSER && m[i][j] === 'U' && i > 5) debugger
-                const newSides = walkAlongEdge(i, j, rightward(dir))
+                const newSides = walkAlongEdge(i, j, clockwise(dir))
                 //console.log(`found for edge met at ${[i,j]}, direction ${dir}, sides: ${newSides}`)
                 sides += newSides
             }
@@ -170,7 +148,7 @@ export async function solve(input, part1) {
     m = input.trim().split('\n').map(l => l.split(''))
     seen = m.map(l => Array(l.length))
     if (!part1) {
-        edges = Array(m.length * 2 + 1).fill(false).map(l => Array(m[0].length * 2 + 1).fill(false))
+        edges = Array(m.length * 2 + 1).fill(false).map(() => Array(m[0].length * 2 + 1).fill(false))
         if (BROWSER) {
             c.canvas.width = CELL * (m.length * 2 + 1)
             c.canvas.height = CELL * (m[0].length * 2 + 1)

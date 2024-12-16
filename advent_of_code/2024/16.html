@@ -1,0 +1,23 @@
+<html>
+<head>
+<style>
+    span {
+        display: inline-block;
+        width: 50px;
+        font-family: monospace;
+        text-align: right;
+    }
+</style>
+</head>
+<body>
+<div></div>
+<script type="module">
+    import {part1, example} from './16_common.js'
+    const req = await fetch(`./16.txt`)
+    const input = await req.text()
+    const runnable = await part1(input, document.body.firstElementChild)
+    document.addEventListener('keypress', (ev) => runnable.pause())
+    runnable.render()
+</script>
+</body>
+</html>

@@ -31,7 +31,7 @@ export const isKeyRight = (data) => data[0] === 27 && data[1] === 91 && data[2] 
 export async function run(day, example, expectP1, expectP2, part1, resultP1, part2, resultP2, example2) {
     console.time("example")
     let result = await part1(example)
-    if (result !== expectP1) throw `expected result for example 1 is incorrect: ${result}`
+    if (result !== expectP1) throw `expected result (${expectP1}) for example 1 is incorrect: ${result}`
     console.timeEnd("example")
 
     console.time("readInput")
@@ -42,18 +42,18 @@ export async function run(day, example, expectP1, expectP2, part1, resultP1, par
     console.time("part1")
     result = await part1(input)
     console.log("part1 result = ", result)
-    if (result !== resultP1) throw `expected result for part 1 is incorrect: ${result}`
+    if (result !== resultP1) throw `expected result (${expectP1}) for part 1 is incorrect: ${result}`
     console.timeEnd("part1")
 
     console.time("example 2")
     result = await part2(example2 || example)
-    if (result !== expectP2) throw `expected result for example 2 is incorrect: ${result}`
+    if (result !== expectP2) throw `expected result (${expectP2}) for example 2 is incorrect: ${result}`
     console.timeEnd("example 2")
 
     console.time("part2")
     result = await part2(input)
     console.log("part2 result = ", result)
-    if (result !== resultP2) throw `expected result for part 2 is incorrect: ${result}`
+    if (result !== resultP2) throw `expected result (${expectP2}) for part 2 is incorrect: ${result}`
     console.timeEnd("part2")
 }
 

@@ -64,7 +64,7 @@ export async function part1(input, renderTo, isPart2) {
                 return false
             case '.':
                 const minSumHereBefore = globalSeen[i][j]
-                // sum - 1000 to account for turns made immediately in this square
+                // sum + 1000 to account for turns made immediately in this square
                 if (isNaN(minSumHereBefore) || (sum <= minSumHereBefore)) globalSeen[i][j] = sum + 1000
                 else return false
 

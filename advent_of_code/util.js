@@ -42,7 +42,7 @@ export async function run(day, example, expectP1, expectP2, part1, resultP1, par
     console.time("part1")
     result = await part1(input)
     console.log("part1 result = ", result)
-    if (result !== resultP1) throw `expected result (${expectP1}) for part 1 is incorrect: ${result}`
+    if (result !== resultP1) throw `expected result (${resultP1}) for part 1 is incorrect: ${result}`
     console.timeEnd("part1")
 
     console.time("example 2")
@@ -53,7 +53,7 @@ export async function run(day, example, expectP1, expectP2, part1, resultP1, par
     console.time("part2")
     result = await part2(input)
     console.log("part2 result = ", result)
-    if (result !== resultP2) throw `expected result (${expectP2}) for part 2 is incorrect: ${result}`
+    if (result !== resultP2) throw `expected result (${resultP2}) for part 2 is incorrect: ${result}`
     console.timeEnd("part2")
 }
 

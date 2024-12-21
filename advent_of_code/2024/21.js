@@ -61,7 +61,6 @@ const mpad = pad.trim().split('\n').map(l => l.split(''))
 let path = [],
     currPaths
 
-
 const dfs = (i1, j1, i2, j2) => {
     if (mpad[i1][j1] === ' ') return null
     if (i1 === i2 && j1 === j2) {
@@ -100,51 +99,103 @@ walk(mpad, (n, i, j) => {
     })
 })
 
-function part1(input) {
+function part1(input, isPart2) {
     let min = NaN
-    const setMin = (_prev, _idx, chars) => {
+    const setMin = (chars) => {
         min = (isNaN(min) || (chars.length < min)) ? chars.length : min
     }
 
-    const genLevelFunc = (prevLvlChars, nextLvlChars, moveOptions, nextLvl) => {
-        const rec = (prev, charIdx) => {
-            if (charIdx === prevLvlChars.length) {
-                // console.log(nextLvlChars.join(''))
-                if (nextLvl) nextLvl('A', 0, nextLvlChars)
-                return
+    let counter = 0
+    const genLevelFunc = (nextLvlIdx, moveOptions, nextLvl) => {
+        const prevLvlChars = perLevelPicks[nextLvlIdx-1]
+        const nextLvlChars = perLevelPicks[nextLvlIdx]
+
+
+        return () => {
+            console.log(prevLvlChars.length)
+
+            let prev = 'A',
+                charIdx = 0,
+                optionsTriedIdxPerChar = Array(prevLvlChars.length).fill(NaN),
+                nextLvlOptionLengths = []
+
+            const back = () => {
+                charIdx--
+                prev = (charIdx === 0) ? 'A' : prevLvlChars[charIdx-1]
             }
-            moveOptions[prev][prevLvlChars[charIdx]].forEach(option => {
-                const oldL = nextLvlChars.length
+
+            while (true) {
+                if (charIdx === prevLvlChars.length) {
+                    counter++
+                    if (nextLvl) nextLvl(nextLvlChars)
+
+                    if (nextLvlIdx === 3) {
+                        nextLvlChars.length = 0
+                        return true // only do a single run on each lvl 3
+                    }
+                    back()
+                    continue
+                }
+
+                const options = moveOptions[prev][prevLvlChars[charIdx]]
+                let currentOptionIdx = optionsTriedIdxPerChar[charIdx]
+                if (isNaN(currentOptionIdx)) {
+                    // first time?
+                    optionsTriedIdxPerChar[charIdx] = 0
+                } else if (currentOptionIdx === options.length - 1) {
+                    // already tried all options possible, going back
+                    nextLvlChars.length -= nextLvlOptionLengths[charIdx] + 1
+
+                    if (charIdx === 0) return
+
+                    back()
+                    nextLvlOptionLengths.length -= 1
+                    optionsTriedIdxPerChar.length -= 1
+                    continue
+                } else {
+                    // remove previously tried option
+                    nextLvlChars.length -= nextLvlOptionLengths[charIdx] + 1
+
+                    optionsTriedIdxPerChar[charIdx] += 1
+                }
+
+                const option = options[optionsTriedIdxPerChar[charIdx]]
+                nextLvlOptionLengths[charIdx] = option.length
                 nextLvlChars.push(...option)
                 nextLvlChars.push('A')
-                rec(prevLvlChars[charIdx], charIdx + 1)
-                nextLvlChars.splice(oldL, option.length + 1)
-            })
+
+                prev = prevLvlChars[charIdx]
+                charIdx++
+           }
         }
-        return rec
     }
 
 
-    const lvl1Picks = [], lvl2Picks = [], lvl3Picks = [], chars = []
-    const lvl3 = genLevelFunc(lvl2Picks, lvl3Picks, arrowDirections, setMin)
-    const lvl2 = genLevelFunc(lvl1Picks, lvl2Picks, arrowDirections, lvl3)
-    const lvl1 = genLevelFunc(chars, lvl1Picks, padDirections, lvl2)
+    const perLevelPicks = []
+    const intermediaryCount = (isPart2 ? 25 : 2)
+    for (let i = 0; i <= intermediaryCount + 1; i++) perLevelPicks.push([])
+    let nextLvl = genLevelFunc(perLevelPicks.length-1, arrowDirections, setMin)
+    for (let i = intermediaryCount; i > 1; i--) {
+        nextLvl = genLevelFunc(i, arrowDirections, nextLvl)
+    }
+    const lvl1 = genLevelFunc(1, padDirections, nextLvl)
 
 
     let sum = 0
 
     input.trim().split('\n').forEach(l => {
-        chars.splice(0, chars.length, ...l.split(''))
+        perLevelPicks[0].splice(0, perLevelPicks[0].length, ...l.split(''))
         min = NaN
-        lvl1('A', 0)
+        lvl1()
         sum += min * parseInt(l)
     })
+    console.log(`${counter} iterations`)
 
     return sum
 }
 
 function part2(input) {
-    return 0
+    return part1(input, true)
 }
 
 import {run} from '../util.js'

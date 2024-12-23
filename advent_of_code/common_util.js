@@ -32,6 +32,15 @@ export class Pause {
     }
 }
 
+export function getOrSet(map, key, val) {
+    if (map.has(key)) {
+        return map.get(key)
+    } else {
+        map.set(key, val)
+        return val
+    }
+}
+
 /*
 const highestCommonDenominator = (x, y) => {
     const [min, max] = x < y ? [x, y] : [y, x]

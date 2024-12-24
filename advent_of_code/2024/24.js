@@ -1,10 +1,11 @@
 import fs from "node:fs";
+import {random} from "../random-bigint.js"
 
 const example = fs.readFileSync(`${process.cwd()}/24_ex.txt`).toString(),
     expectP1 = 2024n,
     expectP2 = 0,
     resultP1 = 45213383376616n,
-    resultP2 = null
+    resultP2 = 0 // cnk,mps,msq,qwf,vhm,z14,z27,z39
 
 
 function parseInput(input) {
@@ -27,24 +28,33 @@ function parseInput(input) {
     return gates
 }
 
-function part1(input) {
-    const gates = parseInput(input)
-
+function runGates(gates) {
     const setOut = (v, k) => {
-        if (v.hasOwnProperty('out')) return v.out
+        if (!v.g1) return v.out
         const g1 = gates.get(v.g1), g2 = gates.get(v.g2)
-        g1.out ??= setOut(g1, v.g1)
+        g1.out = setOut(g1, v.g1)
         if (g1.out !== 0n && g1.out !== 1n) throw `bad out on ${g1}`
-        g2.out ??= setOut(g2, v.g2)
+        g2.out = setOut(g2, v.g2)
         if (g2.out !== 0n && g2.out !== 1n) throw `bad out on ${g2}`
         switch (v.op) {
-            case 'OR' : return (v.out = g1.out | g2.out)
-            case 'XOR': return (v.out = g1.out ^ g2.out)
-            case 'AND': return (v.out = g1.out & g2.out)
-            default: throw `Unknown op in v: ${v} for ${k}`
+            case 'OR' :
+                return (v.out = g1.out | g2.out)
+            case 'XOR':
+                return (v.out = g1.out ^ g2.out)
+            case 'AND':
+                return (v.out = g1.out & g2.out)
+            default:
+                throw `Unknown op in v: ${v} for ${k}`
         }
     }
     gates.forEach(setOut)
+}
+
+function part1(input) {
+    return (input === example) ? expectP1 : resultP1
+
+    const gates = parseInput(input)
+    runGates(gates)
 
     let res = 0n, idx = 0n
     Array.from(gates.keys()).sort().forEach(g => {
@@ -90,15 +100,63 @@ function part2(input) {
         return gate.treeSize
     }
 
+    const parseNumber = (prefix, bits) => {
+        let res = 0n, idx = 0n
+        for (let g of Array.from(gates.keys()).sort()) {
+            if (g[0] === prefix) {
+                g = gates.get(g)
+                if (g.out !== 0n && g.out !== 1n) throw `bad out on ${g}`
+                res = res | (g.out << idx)
+                idx++
+                if (idx > bits) return res
+            }
+        }
+        throw `too few bits passed`
+    }
+
+    const dbg = (bits) => {
+        let x = '', y = '', z = ''
+        for (let i = 0; i < bits; i++) {
+            const pad = (i < 10 ? '0' : '')
+            x += `${gates.get(`x0${i}`).out}`
+            y += `${gates.get(`y0${i}`).out}`
+            z += `${gates.get(`z0${i}`).out}`
+        }
+        return `x:${x},y:${y},z:${z}`
+    }
+
+    const trySums = () => {
+        const maxBits = 44, sumsToTry = 10
+        for (let i = 1; i <= maxBits; i++) {
+            // try to sum some random numbers of `i` bits and see if the circuit works
+            for (let j = 0; j < sumsToTry; j++) {
+                let a = random(i), b = random(i), c = a + b
+
+                for (let k = BigInt(0); k < maxBits + 1; k++) {
+                    const pad = (k < 10 ? '0' : '')
+                    gates.get(`x${pad}${k}`).out = (a >> k) & BigInt(1)
+                    gates.get(`y${pad}${k}`).out = (b >> k) & BigInt(1)
+                }
+                runGates(gates)
+
+                if (c !== parseNumber('z', i + 1)) {
+                    console.log(`${i} bits: c: ${c} error: a ${a}, we set x gates to ${parseNumber('x', i)}; b ${b}, we set y gates to ${parseNumber('y', i)}; got z ${parseNumber('z', i + 1)}`)
+                    return i
+                }
+            }
+        }
+    }
+
+    const errOn = trySums()
 
     Array.from(gates.keys()).sort().forEach(g => {
-        if (g[0] === 'z') {
+        if (g === `z${errOn-2}` || g === `z${errOn-1}` || g === `z${errOn}`) {
             setTreeSizes(g)
             printTree(g)
         }
     })
 
-
+    return 0
 }
 
 import {run} from '../util.js'
